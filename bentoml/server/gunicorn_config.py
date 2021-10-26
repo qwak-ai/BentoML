@@ -54,3 +54,9 @@ def worker_abort(worker):
 def post_worker_init(worker):
     worker.log.debug('Unregistering usage tracking in worker process')
     atexit.unregister(_exit_function)  # Shutting down Gunicorn gracefully
+
+
+worker_class = "gthread"
+worker_connections = 2
+max_requests = 20
+threads = 3
