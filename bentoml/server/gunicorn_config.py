@@ -56,7 +56,8 @@ def post_worker_init(worker):
     atexit.unregister(_exit_function)  # Shutting down Gunicorn gracefully
 
 
-worker_class = "gthread"
-worker_connections = 2
-max_requests = 20
+worker_class = "sync"
 threads = 1
+worker_connections = 100
+max_requests = 400
+max_requests_jitter = 50
