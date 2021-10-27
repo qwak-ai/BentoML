@@ -57,7 +57,6 @@ def post_worker_init(worker):
 
 
 worker_class = "sync"
-threads = 1
-worker_connections = 100
-max_requests = 400
-max_requests_jitter = 50
+worker_connections = 30
+# max_requests = 110
+# max_requests_jitter = 50
