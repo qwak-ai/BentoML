@@ -59,4 +59,4 @@ def post_worker_init(worker):
 worker_class = "gthread"
 worker_connections = 2
 max_requests = 20
-threads = 3
+threads = 1
