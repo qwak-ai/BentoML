@@ -1,13 +1,17 @@
-from functools import partial
 import logging
 import os
 import shutil
+from functools import partial
 from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from multiprocessing.synchronize import Lock
 
 logger = logging.getLogger(__name__)
+
+CUSTOM_BUCKETS = [.005, .01, .025, .05, .075, .1, .25, .5, .75, 1.0, 2.5, 5.0, 7.5, 10.0,
+                  12.5, 15.0, 17.5,
+                  20.0, 25.0, 30.0, 35.0, 40.0, 45.0] + list(range(50, 610, 10))
 
 
 class PrometheusClient:
@@ -87,8 +91,7 @@ class PrometheusClient:
     @property
     def Histogram(self):
         from prometheus_client import Histogram as Operator
-
-        return partial(Operator, namespace=self.namespace, registry=self.registry)
+        return partial(Operator, namespace=self.namespace, registry=self.registry, buckets=CUSTOM_BUCKETS)
 
     @property
     def Counter(self):
