@@ -177,7 +177,9 @@ def load_bento_service_class(bundle_path):
         #save_to_dir, or the path to pip installed BentoService directory
     :return: BentoService class
     """
+    logger.info("Bento: starting load_saved_bundle_config")
     config = load_saved_bundle_config(bundle_path)
+    logger.info("Bento: Finished load_saved_bundle_config")
     metadata = config["metadata"]
 
     # Find and load target module containing BentoService class from given path
@@ -204,9 +206,11 @@ def load_bento_service_class(bundle_path):
     elif sys.version_info >= (3, 5):
         import importlib.util
 
+        logger.info("Bento: starting importlib")
         spec = importlib.util.spec_from_file_location(module_name, module_file_path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
+        logger.info("Bento: finished importlib")
     elif sys.version_info >= (3, 3):
         from importlib.machinery import SourceFileLoader
 
@@ -268,8 +272,13 @@ def load_from_dir(bundle_path):
     Returns:
         bentoml.service.BentoService: a loaded BentoService instance
     """
+    logger.info("Bento: starting load_bento_service_class")
     svc_cls = load_bento_service_class(bundle_path)
-    return svc_cls()
+    logger.info("Bento: finished load_bento_service_class")
+    logger.info("Bento: starting svc_cls")
+    a = svc_cls()
+    logger.info("Bento: finished svc_cls")
+    return a
 
 
 @resolve_remote_bundle
