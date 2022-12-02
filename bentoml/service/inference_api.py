@@ -25,7 +25,7 @@ from simple_di import Provide, inject
 
 from bentoml.adapters import BaseInputAdapter, BaseOutputAdapter
 from bentoml.configuration.containers import BentoMLContainer
-from bentoml.exceptions import BentoMLConfigException
+from bentoml.exceptions import BentoMLConfigException, InferenceException
 from bentoml.types import HTTPRequest, HTTPResponse, InferenceResult, InferenceTask
 from bentoml.utils import cached_property
 
@@ -167,6 +167,26 @@ class InferenceAPI(object):
 
         @functools.wraps(self._user_func)
         def wrapped_func(*args, **kwargs):
+            def handle_error(tasks, status_code, error_message):
+                if self.batch:
+                    for task in tasks:
+                        if not task.is_discarded:
+                            task.discard(
+                                http_status=status_code,
+                                err_msg=error_message,
+                            )
+                    return [None] * sum(
+                        1 if t.batch is None else t.batch for t in tasks
+                    )
+                else:
+                    task = tasks
+                    if not task.is_discarded:
+                        task.discard(
+                            http_status=500,
+                            err_msg=f"Exception happened in API function: {e}",
+                        )
+                    return [None] * (1 if task.batch is None else task.batch)
+
             with self.tracer.span(
                 service_name=f"BentoService.{self.service.name}",
                 span_name=f"InferenceAPI {self.name} user defined callback function",
@@ -179,26 +199,12 @@ class InferenceAPI(object):
                     tasks = []
                 try:
                     return self._user_func(*args, **kwargs)
+                except InferenceException as e:
+                    logger.error('InferenceException returned by user function.', exc_info=1)
+                    return handle_error(tasks, e.http_status, e.message)
                 except Exception as e:  # pylint: disable=broad-except
                     logger.error("Error caught in API function:", exc_info=1)
-                    if self.batch:
-                        for task in tasks:
-                            if not task.is_discarded:
-                                task.discard(
-                                    http_status=500,
-                                    err_msg=f"Exception happened in API function: {e}",
-                                )
-                        return [None] * sum(
-                            1 if t.batch is None else t.batch for t in tasks
-                        )
-                    else:
-                        task = tasks
-                        if not task.is_discarded:
-                            task.discard(
-                                http_status=500,
-                                err_msg=f"Exception happened in API function: {e}",
-                            )
-                        return [None] * (1 if task.batch is None else task.batch)
+                    return handle_error(e, 500, f"Exception happened in API function: {e}")
 
         return wrapped_func
 

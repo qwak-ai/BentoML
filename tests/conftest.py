@@ -9,6 +9,7 @@ import numpy as np
 import pytest
 
 from bentoml.yatai.client import YataiClient
+from bentoml.exceptions import InferenceException
 from tests.bento_service_examples.example_bento_service import ExampleBentoService
 
 
@@ -197,6 +198,9 @@ class TestModel(object):
     def predict_json(self, input_jsons):
         assert input_jsons
         return [{"ok": True}] * len(input_jsons)
+
+    def predict_failure(self, status_code, message):
+        raise InferenceException(status_code, message)
 
 
 @pytest.fixture()

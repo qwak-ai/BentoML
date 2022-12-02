@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from typing import Union, Dict
 import grpc
 from bentoml.utils.lazy_loader import LazyLoader
 
@@ -193,3 +194,29 @@ class CLIException(BentoMLException):
 
 class YataiLabelException(YataiServiceException):
     """Raise when YataiService encounters an issue managing BentoService label"""
+
+class InferenceException(Exception):
+    """Raised to return a custom HTTP response from the predict function
+
+    Args:
+        status_code (int): HTTP status code - supported statuses: 4xx, 5xx
+            If status_code is not in the supported range, it will be set to 500,
+            and an error message will be added to the response body.
+        message (str or Dict): Error message to be returned as the response body
+            If a string, it will be converted to format: {"message": message}
+            If a dictionary, it will be returned without any changes
+
+    """
+    def __init__(self, status_code: int, message: Union[str, Dict]):
+        super().__init__(str(message))
+        self.status_code = status_code
+
+        if isinstance(message, str):
+            message = {"message": message}
+        self.message = message
+
+        if not (400 <= self.status_code < 600):
+            self.status_code = 500
+            self.message = {
+                "qwak_backend_message": f"Invalid status code. Given value: {status_code}. Supported: 4xx, 5xx"
+            }
