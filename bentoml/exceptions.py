@@ -217,6 +217,5 @@ class InferenceException(Exception):
 
         if not (400 <= self.status_code < 600):
             self.status_code = 500
-            self.message = {
-                "qwak_backend_message": f"Invalid status code. Given value: {status_code}. Supported: 4xx, 5xx"
-            }
+            self.message["qwak_backend_message"] =\
+                f"Invalid status code. Given value: {status_code}. Supported: 4xx, 5xx"

@@ -20,3 +20,11 @@ def test_inference_exception_should_convert_status_300_to_500():
         "message": "test",
         "qwak_backend_message": f"Invalid status code. Given value: 300. Supported: 4xx, 5xx"
     }
+
+def test_inference_exception_should_convert_status_with_dictionary():
+    exception = InferenceException(300, {"my_error": "this_is_my_error"})
+    assert exception.status_code == 500
+    assert exception.message == {
+        "my_error": "this_is_my_error",
+        "qwak_backend_message": f"Invalid status code. Given value: 300. Supported: 4xx, 5xx"
+    }
