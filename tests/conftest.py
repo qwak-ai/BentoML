@@ -185,6 +185,10 @@ def json_files(tmpdir):
 
 class TestModel(object):
     def predict_dataframe(self, df):
+        if "error_status_code" in df.columns:
+            error_status_code = int(df["error_status_code"].iloc[0])
+            error_message = df["error_message"].iloc[0]
+            raise InferenceException(error_status_code, error_message)
         return df["col1"] * 2
 
     def predict_image(self, input_datas):
@@ -198,9 +202,6 @@ class TestModel(object):
     def predict_json(self, input_jsons):
         assert input_jsons
         return [{"ok": True}] * len(input_jsons)
-
-    def predict_failure(self, status_code, message):
-        raise InferenceException(status_code, message)
 
 
 @pytest.fixture()

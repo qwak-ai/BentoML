@@ -167,7 +167,8 @@ class InferenceAPI(object):
 
         @functools.wraps(self._user_func)
         def wrapped_func(*args, **kwargs):
-            def handle_error(tasks, status_code, error_message):
+            def handle_error(tasks, status_code: int, error_message: str):
+                logger.error("Error caught in API function:", exc_info=1)
                 if self.batch:
                     for task in tasks:
                         if not task.is_discarded:
@@ -182,14 +183,13 @@ class InferenceAPI(object):
                     task = tasks
                     if not task.is_discarded:
                         task.discard(
-                            http_status=500,
-                            err_msg=f"Exception happened in API function: {e}",
+                            http_status=status_code,
+                            err_msg=error_message,
                         )
                     return [None] * (1 if task.batch is None else task.batch)
-
             with self.tracer.span(
-                service_name=f"BentoService.{self.service.name}",
-                span_name=f"InferenceAPI {self.name} user defined callback function",
+                    service_name=f"BentoService.{self.service.name}",
+                    span_name=f"InferenceAPI {self.name} user defined callback function",
             ):
                 if append_arg and append_arg in kwargs:
                     tasks = kwargs.pop(append_arg)
@@ -199,12 +199,10 @@ class InferenceAPI(object):
                     tasks = []
                 try:
                     return self._user_func(*args, **kwargs)
-                except InferenceException as e:
-                    logger.error('InferenceException returned by user function.', exc_info=1)
-                    return handle_error(tasks, e.http_status, e.message)
+                except InferenceException as e:  # pylint: disable=broad-except
+                    return handle_error(tasks, e.status_code, e.message)
                 except Exception as e:  # pylint: disable=broad-except
-                    logger.error("Error caught in API function:", exc_info=1)
-                    return handle_error(e, 500, f"Exception happened in API function: {e}")
+                    return handle_error(tasks, 500, f"Exception happened in API function: {e}")
 
         return wrapped_func
 

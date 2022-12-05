@@ -283,10 +283,19 @@ class HTTPResponse:
             self.headers = HTTPHeaders.from_sequence(self.headers)
 
     def to_flask_response(self):
+        import json
         import flask
 
+        headers = tuple(self.headers.items())
+
+        if isinstance(self.body, dict):
+            body = json.dumps(self.body)
+            headers += (('Content-Type', 'application/json'),)
+        else:
+            body = self.body
+
         return flask.Response(
-            status=self.status, headers=tuple(self.headers.items()), response=self.body
+            status=self.status, headers=headers, response=body
         )
 
 
