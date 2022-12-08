@@ -3,6 +3,7 @@ from bentoml.exceptions import InferenceException
 
 def test_inference_exception_should_convert_string_to_dictionary():
     exception = InferenceException(400, "test")
+    assert exception.status_code == 400
     assert exception.message == {"message": "test"}
 
 def test_inference_exception_should_convert_status_200_to_500():
