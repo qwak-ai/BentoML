@@ -414,10 +414,6 @@ class MarshalApp:
             def create_response(i):
                 if isinstance(i.body, dict):
                     i.body = json.dumps(i.body)
-                    if not any(
-                        k.lower() == "content-type" for k, _ in i.headers
-                    ):
-                        i.headers.append(("content-type", "application/json"))
 
                 return Response(body=i.body, headers=i.headers, status=i.status or 500)
             return tuple(
