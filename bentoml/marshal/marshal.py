@@ -16,6 +16,7 @@ import asyncio
 import functools
 import logging
 import time
+import json
 import traceback
 from typing import Optional, TYPE_CHECKING
 
@@ -409,8 +410,18 @@ class MarshalApp:
                     ),
                 )
             merged = DataLoader.split_responses(raw)
+
+            def create_response(i):
+                if isinstance(i.body, dict):
+                    i.body = json.dumps(i.body)
+                    if not any(
+                        k.lower() == "content-type" for k, _ in i.headers
+                    ):
+                        i.headers.append(("content-type", "application/json"))
+
+                return Response(body=i.body, headers=i.headers, status=i.status or 500)
             return tuple(
-                Response(body=i.body, headers=i.headers, status=i.status or 500)
+                create_response(i)
                 for i in merged
             )
 
