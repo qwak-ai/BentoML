@@ -9,6 +9,7 @@ trap 'error=1' ERR
 GIT_ROOT=$(git rev-parse --show-toplevel)
 cd "$GIT_ROOT" || exit
 
+export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
 python -m pytest tests --cov=bentoml --cov-config=.coveragerc --ignore tests/integration
 
 test $error = 0 # Return non-zero if pytest failed

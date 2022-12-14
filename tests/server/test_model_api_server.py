@@ -81,6 +81,22 @@ def test_api_function_route(bento_bundle_path, img_file):
     )
     assert 200 == response.status_code
 
+    data = [{"col1": 10, "error_status_code": 401, "error_message": "test error message"}]
+    response = test_client.post(
+        "/predict_dataframe", data=json.dumps(data), content_type="application/json"
+    )
+
+    assert 401 == response.status_code
+    assert {"message": "test error message"} == response.json
+
+    data = [{"col1": 10, "error_status_code": 501, "error_message": "test error message"}]
+    response = test_client.post(
+        "/predict_dataframe", data=json.dumps(data), content_type="application/json"
+    )
+
+    assert 501 == response.status_code
+    assert {"message": "test error message"} == response.json
+
     # Disabling fastai related tests to fix travis build
     # response = test_client.post(
     #     "/predict_fastai_image", data=img, content_type="image/png"

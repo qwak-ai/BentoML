@@ -229,6 +229,7 @@ def test_gunicorn_serve_command():
             mb_max_batch_size=None,
             mb_max_latency=None,
             microbatch_workers=1,
+            daemon=True
         )
 
         runner.invoke(
@@ -254,6 +255,7 @@ def test_gunicorn_serve_command():
             mb_max_batch_size=10000,
             mb_max_latency=20000,
             microbatch_workers=5,
+            daemon=True
         )
 
 

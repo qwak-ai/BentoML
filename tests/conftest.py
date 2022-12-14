@@ -9,6 +9,7 @@ import numpy as np
 import pytest
 
 from bentoml.yatai.client import YataiClient
+from bentoml.exceptions import InferenceException
 from tests.bento_service_examples.example_bento_service import ExampleBentoService
 
 
@@ -184,6 +185,10 @@ def json_files(tmpdir):
 
 class TestModel(object):
     def predict_dataframe(self, df):
+        if "error_status_code" in df.columns:
+            error_status_code = int(df["error_status_code"].iloc[0])
+            error_message = df["error_message"].iloc[0]
+            raise InferenceException(error_status_code, error_message)
         return df["col1"] * 2
 
     def predict_image(self, input_datas):
