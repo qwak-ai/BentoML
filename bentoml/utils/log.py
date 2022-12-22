@@ -22,6 +22,8 @@ from simple_di import Provide, inject
 from bentoml.configuration import get_debug_mode
 from bentoml.configuration.containers import BentoMLContainer
 
+AIRFLOW_ENV_FLAG = "AIRFLOW__LOGGING__REMOTE_LOGGING"
+
 
 def get_logging_config_dict(
     logging_level: str,
@@ -126,7 +128,11 @@ def configure_logging(
     advanced_enabled: bool = Provide[BentoMLContainer.config.logging.advanced.enabled],
     advanced_config: dict = Provide[BentoMLContainer.config.logging.advanced.config],
 ):
+    if os.getenv(AIRFLOW_ENV_FLAG) is not None:
+        return
+
     Path(base_log_dir).mkdir(parents=True, exist_ok=True)
+
     if advanced_enabled:
         logging.config.dictConfig(advanced_config)
         logging.getLogger(__name__).debug(
