@@ -327,6 +327,7 @@ class InferenceResult(Generic[Output]):
     # payload
     data: Optional[Output] = None
     err_msg: str = ''
+    err_class: str = ''
 
     # meta
     task_id: Optional[str] = None
@@ -406,7 +407,7 @@ class InferenceTask(Generic[Input]):
     cli_args: Optional[Sequence[str]] = None
     inference_job_args: Optional[Mapping[str, Any]] = None
 
-    def discard(self, err_msg="", **context):
+    def discard(self, err_msg="", err_class: Optional[str]=None, **context):
         """
         Discard this task. All subsequent steps will be skipped.
 
@@ -415,10 +416,16 @@ class InferenceTask(Generic[Input]):
         err_msg: str
             The reason why this task got discarded. It would be the body of
             HTTP Response, a field in AWS lambda event or CLI stderr message.
+        err_class: str
+            The class of the error. It would be included in the X-Exception-Class header
 
         *other contexts
             Other contexts of the fallback ``InferenceResult``
         """
         self.is_discarded = True
-        self.error = InferenceError(err_msg=err_msg, **context)
+        if err_class:
+            http_headers = HTTPHeaders().from_dict({'X-Exception-Class': err_class})
+            self.error = InferenceError(err_msg=err_msg, http_headers=http_headers, **context)
+        else:
+            self.error = InferenceError(err_msg=err_msg, **context)
         return self

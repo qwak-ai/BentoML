@@ -96,6 +96,8 @@ def test_api_function_route(bento_bundle_path, img_file):
 
     assert 501 == response.status_code
     assert {"message": "test error message"} == response.json
+    assert 'X-Exception-Class' in response.headers
+    assert "InferenceException" == response.headers["X-Exception-Class"]
 
     # Disabling fastai related tests to fix travis build
     # response = test_client.post(

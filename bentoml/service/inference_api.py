@@ -167,14 +167,16 @@ class InferenceAPI(object):
 
         @functools.wraps(self._user_func)
         def wrapped_func(*args, **kwargs):
-            def handle_error(tasks, status_code: int, error_message: str):
+            def handle_error(tasks, status_code: int, error_message: str, exception: Exception):
                 logger.error("Error caught in API function:", exc_info=1)
+                exception_class_name = exception.__class__.__name__
                 if self.batch:
                     for task in tasks:
                         if not task.is_discarded:
                             task.discard(
                                 http_status=status_code,
                                 err_msg=error_message,
+                                err_class=exception_class_name,
                             )
                     return [None] * sum(
                         1 if t.batch is None else t.batch for t in tasks
@@ -185,6 +187,7 @@ class InferenceAPI(object):
                         task.discard(
                             http_status=status_code,
                             err_msg=error_message,
+                            err_class=exception_class_name,
                         )
                     return [None] * (1 if task.batch is None else task.batch)
             with self.tracer.span(
@@ -200,9 +203,9 @@ class InferenceAPI(object):
                 try:
                     return self._user_func(*args, **kwargs)
                 except InferenceException as e:  # pylint: disable=broad-except
-                    return handle_error(tasks, e.status_code, e.message)
+                    return handle_error(tasks, e.status_code, e.message, e)
                 except Exception as e:  # pylint: disable=broad-except
-                    return handle_error(tasks, 500, f"Exception happened in API function: {e}")
+                    return handle_error(tasks, 500, f"Exception happened in API function: {e}", e)
 
         return wrapped_func
 
