@@ -168,6 +168,26 @@ class InferenceAPI(object):
         @functools.wraps(self._user_func)
         def wrapped_func(*args, **kwargs):
             def handle_error(tasks, status_code: int, error_message: str, exception: Exception):
+                def log_request():
+                    log_data = dict(
+                        service_name=self.service.name if self.service else "",
+                        service_version=self.service.version if self.service else "",
+                        api=self.name,
+                    )
+                    error_data = dict(
+                        status_code=status_code,
+                        error_message=error_message,
+                        exception_class=exception.__class__.__name__,
+                    )
+                    for task_to_log in tasks:
+                        prediction_logger.error(
+                            dict(
+                                log_data,
+                                task=task_to_log.to_json(),
+                                error=error_data,
+                                request_id=task_to_log.task_id,
+                            )
+                        )
                 logger.error("Error caught in API function:", exc_info=1)
                 exception_class_name = exception.__class__.__name__
                 if self.batch:
@@ -178,6 +198,7 @@ class InferenceAPI(object):
                                 err_msg=error_message,
                                 err_class=exception_class_name,
                             )
+                    log_request()
                     return [None] * sum(
                         1 if t.batch is None else t.batch for t in tasks
                     )
@@ -189,6 +210,7 @@ class InferenceAPI(object):
                             err_msg=error_message,
                             err_class=exception_class_name,
                         )
+                    log_request()
                     return [None] * (1 if task.batch is None else task.batch)
             with self.tracer.span(
                     service_name=f"BentoService.{self.service.name}",
