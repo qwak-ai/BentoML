@@ -184,7 +184,7 @@ class InferenceAPI(object):
                             dict(
                                 log_data,
                                 task=task_to_log.to_json(),
-                                error=error_data,
+                                error_response=error_data,
                                 request_id=task_to_log.task_id,
                             )
                         )
