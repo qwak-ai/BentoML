@@ -165,33 +165,32 @@ class InferenceAPI(object):
         except TypeError:
             pass
 
-    def log_errors_in_request(self, tasks, status_code: int, error_message: str, exception: Exception):
-        log_data = dict(
-            service_name=self.service.name if self.service else "",
-            service_version=self.service.version if self.service else "",
-            api=self.name,
-        )
-        error_data = dict(
-            status_code=status_code,
-            error_message=error_message,
-            exception_class=exception.__class__.__name__,
-        )
-        for task_to_log in tasks:
-            prediction_logger.error(
-                dict(
-                    log_data,
-                    task=task_to_log.to_json(),
-                    error_response=error_data,
-                    request_id=task_to_log.task_id,
-                )
-            )
-
         @functools.wraps(self._user_func)
         def wrapped_func(*args, **kwargs):
             def handle_error(tasks, status_code: int, error_message: str, exception: Exception):
+                def log_request():
+                    log_data = dict(
+                        service_name=self.service.name if self.service else "",
+                        service_version=self.service.version if self.service else "",
+                        api=self.name,
+                    )
+                    error_data = dict(
+                        status_code=status_code,
+                        error_message=error_message,
+                        exception_class=exception.__class__.__name__,
+                    )
+                    for task_to_log in tasks:
+                        prediction_logger.error(
+                            dict(
+                                log_data,
+                                task=task_to_log.to_json(),
+                                error_response=error_data,
+                                request_id=task_to_log.task_id,
+                            )
+                        )
                 logger.error("Error caught in API function:", exc_info=1)
                 exception_class_name = exception.__class__.__name__
-                self.log_errors_in_request(tasks, status_code, error_message, exception)
+                log_request()
                 if self.batch:
                     for task in tasks:
                         if not task.is_discarded:
