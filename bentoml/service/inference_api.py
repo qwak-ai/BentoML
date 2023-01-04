@@ -190,6 +190,7 @@ class InferenceAPI(object):
                         )
                 logger.error("Error caught in API function:", exc_info=1)
                 exception_class_name = exception.__class__.__name__
+                log_request()
                 if self.batch:
                     for task in tasks:
                         if not task.is_discarded:
@@ -198,7 +199,6 @@ class InferenceAPI(object):
                                 err_msg=error_message,
                                 err_class=exception_class_name,
                             )
-                    log_request()
                     return [None] * sum(
                         1 if t.batch is None else t.batch for t in tasks
                     )
@@ -210,7 +210,6 @@ class InferenceAPI(object):
                             err_msg=error_message,
                             err_class=exception_class_name,
                         )
-                    log_request()
                     return [None] * (1 if task.batch is None else task.batch)
             with self.tracer.span(
                     service_name=f"BentoService.{self.service.name}",
