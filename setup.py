@@ -134,7 +134,7 @@ extras_require = {
 }
 
 setuptools.setup(
-    name="BentoML",
+    name="BentoMLFork",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     author="bentoml.org",
