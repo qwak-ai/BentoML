@@ -3,7 +3,6 @@ import functools
 import glob
 import inspect
 import os
-from pkg_resources import Requirement
 
 import imageio
 import numpy as np
@@ -221,7 +220,6 @@ def bento_service(example_bento_service_class):
     """
     test_model = TestModel()
     test_svc = example_bento_service_class()
-    test_svc.env._pip_packages['bentoml'] = Requirement.parse('bentoml==0.13.2')
     test_svc.pack('model', test_model)
     return test_svc
 
