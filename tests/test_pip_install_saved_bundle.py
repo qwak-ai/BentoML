@@ -22,10 +22,10 @@ def test_pip_install_saved_bentoservice_bundle(bento_bundle_path, tmpdir):
     bentoml_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
     assert (
-            pipmain(
-                ["install", "-U", "--target={}".format(install_path), bento_bundle_path]
-            )
-            == 0
+        pipmain(
+            ["install", "-U", "--target={}".format(install_path), bento_bundle_path]
+        )
+        == 0
     ), 'saved bundle successfully installed'
 
     # ensure BentoML is installed as dependency
