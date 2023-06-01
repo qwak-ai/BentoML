@@ -35,7 +35,7 @@ install_requires = [
     "grpcio",
     "gunicorn",
     "humanfriendly",
-    "numpy<1.21.1",
+    "numpy",
     "packaging",
     "prometheus_client",
     "protobuf>=3.8.0",
@@ -134,7 +134,7 @@ extras_require = {
 }
 
 setuptools.setup(
-    name="BentoML",
+    name="BentoML",  # DO NOT CHANGE THIS NAME IN THE CODE. Old SDK retrieve BentoMLFork directly from github and will break
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     author="bentoml.org",
