@@ -99,7 +99,7 @@ def assert_df_equal(left: pd.DataFrame, right: pd.DataFrame):
     try:
         left_array = left.values
         right_array = right.values
-        if right_array.dtype == np.float:
+        if right_array.dtype == float:
             np.testing.assert_array_almost_equal(left_array, right_array)
         else:
             np.testing.assert_array_equal(left_array, right_array)
