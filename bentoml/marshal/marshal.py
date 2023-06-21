@@ -307,6 +307,8 @@ class MarshalApp:
             standalone=True,
             sample_rate=0.001,
         ):
+            # start timer
+
             api_route = request.match_info.get("path")
             if api_route in self.batch_handlers:
                 req = HTTPRequest(
@@ -328,6 +330,7 @@ class MarshalApp:
                     resp = HTTPInternalServerError()
             else:
                 resp = await self.relay_handler(request)
+                # end timer
         return resp
 
     async def relay_handler(self, request: "Request"):

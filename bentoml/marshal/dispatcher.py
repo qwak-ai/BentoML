@@ -143,6 +143,7 @@ class CorkDispatcher:
 
         @functools.wraps(callback)
         async def _func(data):
+            logger.info("start wrapper function")
             if self._controller is None:
                 self._controller = self._loop.create_task(self.controller())
             try:
@@ -151,6 +152,7 @@ class CorkDispatcher:
                 return None if self.fallback is None else self.fallback()
             if isinstance(r, Exception):
                 raise r
+            logger.info("finish wrapper function")
             return r
 
         return _func
@@ -163,7 +165,7 @@ class CorkDispatcher:
             try:
                 async with self._wake_event:  # block until there's any request in queue
                     await self._wake_event.wait_for(self._queue.__len__)
-
+                logger.info(f"queue: {self._queue}")
                 n = len(self._queue)
                 dt = self.tick_interval
                 decay = 0.95  # the decay rate of wait time
@@ -198,6 +200,7 @@ class CorkDispatcher:
 
     async def inbound_call(self, data):
         t = time.time()
+        logger.info(f"inbound_call in time: {t} and data {data}")
         future = self._loop.create_future()
         input_info = (t, data, future)
         self._queue.append(input_info)
