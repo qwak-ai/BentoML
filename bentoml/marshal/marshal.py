@@ -88,7 +88,7 @@ def metrics_patch(cls):
 
         async def request_dispatcher(self, request):
             from aiohttp.web import Response
-
+            logger.info("request_dispatcher start")
             func = super(_MarshalApp, self).request_dispatcher
             api_route = request.match_info.get("path", "/")
             _metrics_request_in_progress = self.metrics_request_in_progress.labels(
@@ -113,14 +113,20 @@ def metrics_patch(cls):
                 endpoint=api_route, http_response_code=resp.status
             ).observe(time.time() - time_st)
             _metrics_request_in_progress.dec()
+            logger.info("request_dispatcher end")
+
             return resp
 
         async def _batch_handler_template(self, requests, api_route, max_latency):
+            logger.info("_batch_handler_template start")
+
             func = super(_MarshalApp, self)._batch_handler_template
             self.metrics_request_batch_size.labels(endpoint=api_route).observe(
                 len(requests)
             )
-            return await func(requests, api_route, max_latency)
+            returned = await func(requests, api_route, max_latency)
+            logger.info("_batch_handler_template end")
+            return returned
 
     return _MarshalApp
 

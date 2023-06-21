@@ -144,7 +144,6 @@ class CorkDispatcher:
         @functools.wraps(callback)
         async def _func(data):
             logger.info("start wrapper function")
-            print("start wrapper function")
 
             if self._controller is None:
                 self._controller = self._loop.create_task(self.controller())
@@ -155,7 +154,6 @@ class CorkDispatcher:
             if isinstance(r, Exception):
                 raise r
             logger.info("finish wrapper function")
-            print("finish wrapper function")
             return r
 
         return _func
@@ -229,7 +227,9 @@ class CorkDispatcher:
                 duration=time.time() - _time_start,
             )
             # log it to metrics
-            print(f"time {inputs_info[-1][0]-time.time()}")
+            logger.info(f"inputs_info: {inputs_info}")
+            logger.info(f"outbound_call time: {time.time()-inputs_info[-1][0]}")
+            print(f"outbound_call time: {time.time()-inputs_info[-1][0]}")
             self.met
 
         except asyncio.CancelledError:
