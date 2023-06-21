@@ -93,15 +93,12 @@ class CorkDispatcher:
     The wrapped function should be an async function.
     '''
 
-    @inject
     def __init__(
         self,
         max_latency_in_ms: int,
         max_batch_size: int,
         shared_sema: NonBlockSema = None,
         fallback: Callable = None,
-        metrics_client=Provide[BentoMLContainer.metrics_client],
-
     ):
         """
         params:
