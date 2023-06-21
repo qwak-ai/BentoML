@@ -201,7 +201,7 @@ class CorkDispatcher:
 
     async def inbound_call(self, data):
         t = time.time()
-        logger.info(f"inbound_call in time: {t} and data {data}")
+        print(f"inbound_call in time: {t} and data {data}")
         future = self._loop.create_future()
         input_info = (t, data, future)
         self._queue.append(input_info)
@@ -212,7 +212,7 @@ class CorkDispatcher:
     async def outbound_call(self, inputs_info):
         _time_start = time.time()
         _done = False
-        print("outbound function called: %d", len(inputs_info))
+        print(f"outbound function called:{len(inputs_info)}")
 
         try:
             outputs = await self.callback(tuple(d for some_time, d, _ in inputs_info))

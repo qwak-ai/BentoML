@@ -373,7 +373,7 @@ class MarshalApp:
             * RemoteException: known exceptions from model server
             * Exception: other exceptions
         '''
-        logger.log("11 start _batch_handler_template")
+        logger.info("11 start _batch_handler_template")
         from aiohttp.client_exceptions import ClientConnectionError
         from aiohttp import ClientTimeout
         from aiohttp.web import Response
@@ -429,7 +429,7 @@ class MarshalApp:
 
                 return Response(body=i.body, headers=i.headers, status=i.status or 500)
 
-            logger.log("12 finish _batch_handler_template")
+            logger.info("12 finish _batch_handler_template")
 
             return tuple(
                 create_response(i)
