@@ -393,6 +393,7 @@ class ModelApp:
         def api_func():
             # handle_request may raise 4xx or 5xx exception.
             try:
+                logger.info("api_func")
                 if request.headers.get(MARSHAL_REQUEST_HEADER):
                     reqs = DataLoader.split_requests(request.get_data())
                     responses = api.handle_batch_request(reqs)
@@ -425,7 +426,7 @@ class ModelApp:
                     'request, find the error details in server logs',
                     500,
                 )
-
+                logger.info("response")
             return response
 
         def api_func_with_tracing():

@@ -93,12 +93,15 @@ class CorkDispatcher:
     The wrapped function should be an async function.
     '''
 
+    @inject
     def __init__(
         self,
         max_latency_in_ms: int,
         max_batch_size: int,
         shared_sema: NonBlockSema = None,
         fallback: Callable = None,
+        metrics_client=Provide[BentoMLContainer.metrics_client],
+
     ):
         """
         params:
@@ -144,6 +147,8 @@ class CorkDispatcher:
         @functools.wraps(callback)
         async def _func(data):
             logger.info("start wrapper function")
+            print("start wrapper function")
+
             if self._controller is None:
                 self._controller = self._loop.create_task(self.controller())
             try:
@@ -153,6 +158,7 @@ class CorkDispatcher:
             if isinstance(r, Exception):
                 raise r
             logger.info("finish wrapper function")
+            print("finish wrapper function")
             return r
 
         return _func
@@ -212,8 +218,9 @@ class CorkDispatcher:
         _time_start = time.time()
         _done = False
         logger.info("outbound function called: %d", len(inputs_info))
+
         try:
-            outputs = await self.callback(tuple(d for _, d, _ in inputs_info))
+            outputs = await self.callback(tuple(d for some_time, d, _ in inputs_info))
             assert len(outputs) == len(inputs_info)
             for (_, _, fut), out in zip(inputs_info, outputs):
                 if not fut.done():
@@ -224,6 +231,10 @@ class CorkDispatcher:
                 wait=_time_start - inputs_info[-1][0],
                 duration=time.time() - _time_start,
             )
+            # log it to metrics
+            print(f"time {inputs_info[-1][0]-time.time()}")
+            self.met
+
         except asyncio.CancelledError:
             pass
         except Exception as e:  # pylint: disable=broad-except
