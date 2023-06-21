@@ -291,7 +291,7 @@ class MarshalApp:
                 self.add_batch_handler(api_pb.route, max_latency, max_batch_size)
                 logger.info(
                     "Micro batch enabled for API `%s` max-latency: %s"
-                    " max-batch-size %s",
+                    " max-batch-size %s sarit",
                     api_pb.route,
                     max_latency,
                     max_batch_size,
