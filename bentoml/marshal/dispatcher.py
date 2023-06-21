@@ -143,7 +143,7 @@ class CorkDispatcher:
 
         @functools.wraps(callback)
         async def _func(data):
-            logger.info("start wrapper function")
+            logger.info("13 start wrapper function")
 
             if self._controller is None:
                 self._controller = self._loop.create_task(self.controller())
@@ -153,7 +153,7 @@ class CorkDispatcher:
                 return None if self.fallback is None else self.fallback()
             if isinstance(r, Exception):
                 raise r
-            logger.info("finish wrapper function")
+            print(" 14 finish wrapper function")
             return r
 
         return _func
@@ -166,7 +166,7 @@ class CorkDispatcher:
             try:
                 async with self._wake_event:  # block until there's any request in queue
                     await self._wake_event.wait_for(self._queue.__len__)
-                logger.info(f"queue: {self._queue}")
+                print(f"queue is: {self._queue}")
                 n = len(self._queue)
                 dt = self.tick_interval
                 decay = 0.95  # the decay rate of wait time
@@ -212,7 +212,7 @@ class CorkDispatcher:
     async def outbound_call(self, inputs_info):
         _time_start = time.time()
         _done = False
-        logger.info("outbound function called: %d", len(inputs_info))
+        print("outbound function called: %d", len(inputs_info))
 
         try:
             outputs = await self.callback(tuple(d for some_time, d, _ in inputs_info))
@@ -227,9 +227,9 @@ class CorkDispatcher:
                 duration=time.time() - _time_start,
             )
             # log it to metrics
-            logger.info(f"inputs_info: {inputs_info}")
-            logger.info(f"outbound_call time: {time.time()-inputs_info[-1][0]}")
+            print(f"inputs_info: {inputs_info}")
             print(f"outbound_call time: {time.time()-inputs_info[-1][0]}")
+
             self.met
 
         except asyncio.CancelledError:

@@ -53,8 +53,7 @@ class InstrumentMiddleware:
         start_time = default_timer()
 
         def start_response_wrapper(status, headers, exc_info=None):
-            logger.info("start_response_wrapper")
-            print("start_response_wrapper")
+            logger.info(" 1 start start_response_wrapper")
             ret = start_response(status, headers, exc_info)
             status_code = int(status.split()[0])
 
@@ -72,7 +71,7 @@ class InstrumentMiddleware:
                 service_version=self.bento_service.version,
                 http_response_code=status_code,
             ).observe(total_time)
-            print("finish start response")
+            logger.info(" 2 finish start_response_wrapper")
 
             return ret
 
