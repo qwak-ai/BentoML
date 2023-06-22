@@ -426,8 +426,7 @@ class ModelApp:
                     'request, find the error details in server logs',
                     500,
                 )
-                logger.info("4 finish api_func")
-
+            logger.info("4 finish api_func")
             return response
 
         def api_func_with_tracing():

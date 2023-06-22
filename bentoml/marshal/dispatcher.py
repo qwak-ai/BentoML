@@ -143,7 +143,7 @@ class CorkDispatcher:
 
         @functools.wraps(callback)
         async def _func(data):
-            logger.info("13 start wrapper function")
+            print("13 start wrapper function")
 
             if self._controller is None:
                 self._controller = self._loop.create_task(self.controller())
@@ -153,7 +153,7 @@ class CorkDispatcher:
                 return None if self.fallback is None else self.fallback()
             if isinstance(r, Exception):
                 raise r
-            print(" 14 finish wrapper function")
+            print("14 finish wrapper function")
             return r
 
         return _func

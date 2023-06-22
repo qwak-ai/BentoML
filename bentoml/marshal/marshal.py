@@ -88,7 +88,7 @@ def metrics_patch(cls):
 
         async def request_dispatcher(self, request):
             from aiohttp.web import Response
-            logger.info("5 request_dispatcher start")
+            logger.info(f"5 request_dispatcher start {time.time()}")
             func = super(_MarshalApp, self).request_dispatcher
             api_route = request.match_info.get("path", "/")
             _metrics_request_in_progress = self.metrics_request_in_progress.labels(
@@ -109,11 +109,13 @@ def metrics_patch(cls):
             self.metrics_request_total.labels(
                 endpoint=api_route, http_response_code=resp.status
             ).inc()
+            observed = time.time() - time_st
             self.metrics_request_duration.labels(
                 endpoint=api_route, http_response_code=resp.status
-            ).observe(time.time() - time_st)
+            ).observe(observed)
+
             _metrics_request_in_progress.dec()
-            logger.info("6 request_dispatcher end")
+            logger.info(f"6 request_dispatcher end {time.time()} observed:{observed}")
 
             return resp
 
