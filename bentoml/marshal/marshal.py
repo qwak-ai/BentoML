@@ -88,9 +88,11 @@ def metrics_patch(cls):
 
         async def request_dispatcher(self, request):
             from aiohttp.web import Response
-            logger.info(f"5 request_dispatcher start {time.time()}")
             func = super(_MarshalApp, self).request_dispatcher
             api_route = request.match_info.get("path", "/")
+            if api_route == "predict" or api_route == "/predict":
+                logger.info(f"5 request_dispatcher start {time.time()}")
+
             _metrics_request_in_progress = self.metrics_request_in_progress.labels(
                 endpoint=api_route, http_method=request.method,
             )
@@ -115,7 +117,8 @@ def metrics_patch(cls):
             ).observe(observed)
 
             _metrics_request_in_progress.dec()
-            logger.info(f"6 request_dispatcher end {time.time()} observed:{observed}")
+            if api_route == "predict" or api_route == "/predict":
+                logger.info(f"6 request_dispatcher end {time.time()} observed:{observed}")
 
             return resp
 
@@ -316,9 +319,11 @@ class MarshalApp:
             sample_rate=0.001,
         ):
             # start timer
-            logger.info("9 start request_dispatcher")
 
             api_route = request.match_info.get("path")
+            if api_route == "predict" or api_route == "/predict":
+                logger.info("9 start request_dispatcher in marshal")
+
             if api_route in self.batch_handlers:
                 req = HTTPRequest(
                     tuple((k.decode(), v.decode()) for k, v in request.raw_headers),
@@ -340,7 +345,9 @@ class MarshalApp:
             else:
                 resp = await self.relay_handler(request)
 
-            logger.info("10 start request_dispatcher")
+            if api_route == "predict" or api_route == "/predict":
+                logger.info("10 finish request_dispatcher in marshal")
+
         return resp
 
     async def relay_handler(self, request: "Request"):
