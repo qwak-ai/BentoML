@@ -2,7 +2,7 @@ import logging
 import multiprocessing
 from timeit import default_timer
 from typing import TYPE_CHECKING
-
+import time
 from simple_di import Provide, inject
 
 from bentoml.configuration.containers import BentoMLContainer
