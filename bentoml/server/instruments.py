@@ -51,7 +51,9 @@ class InstrumentMiddleware:
         req = Request(environ)
         endpoint = req.path
         start_time = default_timer()
-
+        if endpoint == "/predict":
+            logger.info(f" __call__ {start_time}")
+            logger.info(f" __call__ {req}")
         def start_response_wrapper(status, headers, exc_info=None):
             if endpoint =="/predict":
                 logger.info(f" 1 start start_response_wrapper {time.time()}")
